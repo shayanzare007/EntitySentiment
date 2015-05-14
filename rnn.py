@@ -23,7 +23,7 @@ import pandas as pd
 #vocab = pd.read_table("data/lm/vocab.ptb.txt", header=None, sep="\s+",
 #                     index_col=0, names=['count', 'freq'], )
 
-vocab2 = pd.read_table("data/lm/worddic.txt",header=None,sep="\s+",index_col=0)
+vocab2 = pd.read_table("worddic.txt",header=None,sep="\s+",index_col=0)
 
 # Choose how many top words to keep
 #vocabsize = 2000
