@@ -391,10 +391,15 @@ class NNBase(object):
         costs = []
         counter = 0
         t0 = time.time()
-
+        #print 'length of X is\n'
+        #print len(X)
         try:
             print "Begin SGD..."
             for idx, alpha in itertools.izip(idxiter, alphaiter):
+                #print 'length at current index'
+                #print len(X[idx])
+                if len(X[idx]) == 0: # robustness
+                    continue
                 if counter % printevery == 0:
                     print "  Seen %d in %.02f s" % (counter, time.time() - t0)
                 if counter % costevery == 0:
@@ -405,6 +410,7 @@ class NNBase(object):
                     print "  [%d]: mean loss %g" % (counter, cost)
 
                 if hasattr(idx, "__iter__") and len(idx) > 1: # if iterable
+                    c
                     self.train_minibatch_sgd(X[idx], y[idx], alpha)
                 elif hasattr(idx, "__iter__") and len(idx) == 1: # single point
                     idx = idx[0]

@@ -115,7 +115,7 @@ class RNNLM(NNBase):
         ##
         # Backward propagation through time
         delta = (y_hat -ys).reshape(len(ys),1)
-        ht = h_final.reshape(len(hs[t]),1)
+        ht = h_final.reshape(len(h_final),1)
         self.grads.U+=delta.dot(ht.T)
         #for t in range(ns):
             # U
@@ -125,7 +125,7 @@ class RNNLM(NNBase):
             
             # H and L
         t = ns-1 # last t
-        current = self.params.U.T.dot(dt) * ht * (1-ht) # the common part
+        current = self.params.U.T.dot(delta) * ht * (1-ht) # the common part
         prev_ht = hs[t-1].reshape(len(hs[t-1]),1)
         self.grads.H += current.dot(prev_ht.T)
         xt = make_onehot(xs[t],self.vdim).reshape(self.vdim,1)
@@ -175,15 +175,16 @@ class RNNLM(NNBase):
         """
 
         J = 0
+        n_aspect = N_ASPECTS
+        sent_dim = SENT_DIM
         #### YOUR CODE HERE ####
         # hs[-1] = initial hidden state (zeros)
-        ns = len(ys)
+        ns = len(xs)
         hs = zeros((ns+1, self.hdim))
 
         for t in range(ns):
-            hs[t] = sigmoid(self.params.H.dot(hs[t-1]) + self.sparams.L[xs[t]])
-            #ps[t] = softmax(self.params.U.dot(hs[t]))
-            #J -= log(ps[t][ys[t]])
+            hs[t] = sigmoid(self.params.H.dot(hs[t-1,:]) + self.sparams.L[xs[t]])
+            
         h_final = hs[ns-1]
         z = self.params.U.dot(h_final) 
         y_hat = []
@@ -203,7 +204,8 @@ class RNNLM(NNBase):
 
         Do not modify this function!
         """
-        if not isinstance(X[0], ndarray): # single example
+        print X.shape
+        if len(X[0])==1: # single example
             return self.compute_seq_loss(X, Y)
         else: # multiple examples
             return sum([self.compute_seq_loss(xs,ys)
