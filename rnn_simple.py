@@ -117,12 +117,7 @@ class RNNLM(NNBase):
         delta = (y_hat -ys).reshape(len(ys),1)
         ht = h_final.reshape(len(h_final),1)
         self.grads.U+=delta.dot(ht.T)
-        #for t in range(ns):
-            # U
-            #ht = hs[t].reshape(len(hs[t]),1)
-            #dt = delta[t].reshape(len(delta[t]),1)
-            #self.grads.U += dt.dot(ht.T)
-            
+         
             # H and L
         t = ns-1 # last t
         current = self.params.U.T.dot(delta) * ht * (1-ht) # the common part
