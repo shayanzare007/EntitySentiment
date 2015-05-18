@@ -30,7 +30,7 @@ class RNNLM(NNBase):
         bptt : number of backprop timesteps
     """
 
-    def __init__(self, L0, Dy, U0=None,
+    def __init__(self, L0, Dy=N_ASPECTS*SENT_DIM, U0=None,
                  alpha=0.005, rseed=10, bptt=1):
 
         self.hdim = L0.shape[1] # word vector dimensions

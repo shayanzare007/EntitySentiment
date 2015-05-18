@@ -1,17 +1,12 @@
 import sys, os
 from numpy import *
 from matplotlib.pyplot import *
-%matplotlib inline
-matplotlib.rcParams['savefig.dpi'] = 100
 
-%load_ext autoreload
-%autoreload 2
-
-from rnnlm import RNNLM
+from rnn_simple import RNNLM
 
 # Gradient check on toy data, for speed
 random.seed(10)
-wv_dummy = random.randn(10,50)
+wv_dummy = random.randn(55,50)
 model = RNNLM(L0 = wv_dummy, U0 = wv_dummy,
               alpha=0.005, rseed=10, bptt=4)
 model.grad_check(array([1,2,3]), array([2,3,4]))
@@ -20,20 +15,18 @@ from data_utils import utils as du
 import pandas as pd
 
 # Load the vocabulary
-#vocab = pd.read_table("data/lm/vocab.ptb.txt", header=None, sep="\s+",
-#                     index_col=0, names=['count', 'freq'], )
 
-vocab2 = pd.read_table("worddic.txt",header=None,sep="\s+",index_col=0)
+vocab = pd.read_table("worddic.txt",header=None,sep="\s+",index_col=0)
 
 # Choose how many top words to keep
 #vocabsize = 2000
-vocabsize2 = 58868 #remove for implemenation
-#num_to_word = dict(enumerate(vocab.index[:vocabsize]))
+vocabsize = 58868 #remove for implemenation
 
-num_to_word2 = dict(enumerate(vocab.index[:vocabsize]))
+
+num_to_word = dict(enumerate(vocab.index[:vocabsize]))
 
 #word_to_num = du.invert_dict(num_to_word)
-word_to_num2 = du.invert_dict(num_to_word2)
+word_to_num = du.invert_dict(num_to_word)
 
 #print word_to_num2
 
@@ -62,17 +55,7 @@ for line in f.readlines():
 
 print "And finally, we close the file."
 f.close()
-################
 
-##
-# Below needed for 'adj_loss': DO NOT CHANGE
-fraction_lost = float(sum([vocab['count'][word] for word in vocab.index
-                           if (not word in word_to_num) 
-                               and (not word == "UUUNKKK")]))
-fraction_lost /= sum([vocab['count'][word] for word in vocab.index
-                      if (not word == "UUUNKKK")])
-print "Retained %d words from %d (%.02f%% of all tokens)" % (vocabsize, len(vocab),
-                                                             100*(1-fraction_lost))
 
 hdim = 100 # dimension of hidden layer = dimension of word vectors
 random.seed(10)
