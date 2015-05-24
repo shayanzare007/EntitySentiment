@@ -7,14 +7,48 @@ from data_utils import utils as du
 import pandas as pd
 
 
-def read_training(filename):
+def read_labels(filename):
   training_set = []
-  with open(filename) as f:
+  with open(filename,'rU') as f:
     for i,line in enumerate(f):
+      #print line
+      #line=line.rstrip().split('\r')
+      #print line
       line=line.rstrip().split(',')
-      current=[int(x) for x in line]
-      training_set.append(current)
+      #print line
+      try:
+        current=[int(x) for x in line]
+        training_set.append(current)
+      except:
+        print "Error, number",i
+      
   return training_set
+
+def read_data(filename):
+  print "Opening the file..."
+
+  X_train = []
+
+  f = open(filename,'r')
+  count = 0
+
+  for line in f.readlines():
+      sentence = []
+      line = line.strip()
+      if not line: continue
+      ret = line.split()
+      for word in ret:
+          word = word.strip()
+          try:
+              if word_to_num.get(word) is not None:
+                  sentence.append(word_to_num.get(word))
+          except:
+              count +=1
+      X_train.append(array(sentence))
+
+  print "File successfully read"
+  f.close()
+  return X_train
 
 # Load the vocabulary
 
@@ -27,30 +61,11 @@ num_to_word = dict(enumerate(vocab.index[:vocabsize]))
 word_to_num = du.invert_dict(num_to_word)
 
 ##############
-filename = 'reviews_plain.txt'
-print "Opening the file..."
 
-X_train = []
-
-f = open(filename,'r')
-count = 0
-
-for line in f.readlines():
-    sentence = []
-    line = line.strip()
-    if not line: continue
-    ret = line.split()
-    for word in ret:
-        word = word.strip()
-        try:
-            if word_to_num.get(word) is not None:
-                sentence.append(word_to_num.get(word))
-        except:
-            count +=1
-    X_train.append(array(sentence))
-
-print "And finally, we close the file."
-f.close()
+filename_train = 'x_train.txt'#'reviews_plain.txt'
+filename_dev = 'x_dev.txt'
+X_train = read_data(filename_train)
+X_dev = read_data(filename_dev)
 
 
 hdim = 100 # dimension of hidden layer = dimension of word vectors
@@ -59,8 +74,12 @@ L0 = zeros((vocabsize, hdim)) # replace with random init,
                               # or do in RNNLM.__init__()
 model = RNNLM(L0, U0=None, alpha=0.08, rseed=10, bptt=2)
 
-Y_train = read_training('train_recu.csv')
+Y_train = read_labels('y_train.csv')#'train_recu.csv'
+Y_dev = read_labels('y_dev.csv')
 print len(Y_train)
+
+if len(X_dev)!= len(Y_dev):
+  print "Sanity Check failed, len(X_dev)=",len(X_dev),"len(Y_dev)=",len(Y_dev)
 
 ##
 # Pare down to a smaller dataset, for speed (optional)

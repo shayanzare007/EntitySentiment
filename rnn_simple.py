@@ -199,12 +199,13 @@ class RNNLM(NNBase):
 
         Do not modify this function!
         """
-        print X.shape
+        #print X.shape
         if len(X[0])==1: # single example
             return self.compute_seq_loss(X, Y)
         else: # multiple examples
             return sum([self.compute_seq_loss(xs,ys)
                        for xs,ys in itertools.izip(X, Y)])
+
 
     def compute_mean_loss(self, X, Y):
         """
