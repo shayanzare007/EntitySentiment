@@ -36,9 +36,11 @@ class RNNLM(NNBase):
         self.hdim = L0.shape[1] # word vector dimensions
         self.vdim = L0.shape[0] # vocab size
         self.ydim = Dy
-        param_dims = dict(H = (self.hdim, self.hdim),
-                          U = (self.ydim, self.hdim),
-                          b1 = (self.hdim,),
+        param_dims = dict(H_f = (self.hdim, self.hdim),
+                          U = (self.ydim, 2*self.hdim),
+                          H_b = (self.hdim, self.hdim),
+                          b1_f = (self.hdim,),
+                          b1_b = (self.hdim,),
                           b2 =(self.ydim,))
         # note that only L gets sparse updates
         param_dims_sparse = dict(L = L0.shape)
@@ -52,13 +54,15 @@ class RNNLM(NNBase):
         # Initialize word vectors
         self.bptt = bptt
         self.alpha = alpha
-        self.params.H=random_weight_matrix(*self.params.H.shape)
+        self.params.H_f=random_weight_matrix(*self.params.H_f.shape)
+        self.params.H_b=random_weight_matrix(*self.params.H_b.shape)
         if U0 is not None:
             self.params.U= U0.copy()
         else:
             self.params.U= random_weight_matrix(*self.params.U.shape)
         self.sparams.L = L0.copy()
-        self.params.b1 = zeros((self.hdim,))
+        self.params.b1_f = zeros((self.hdim,))
+        self.params.b1_b = zeros((self.hdim,))
         self.params.b2 = zeros((self.ydim,))
 
 
@@ -68,20 +72,19 @@ class RNNLM(NNBase):
         # backprop
         self.backprop(xs,ys,hs,y_hat)
                  
-    def forward_propagation(self,xs):
+    def forward_propagation_uni(self,xs):
         n_aspect = N_ASPECTS
         sent_dim = SENT_DIM
         ns = len(xs)
-        hs = zeros((ns+1, self.hdim))
+        hs_f = zeros((ns+1, self.hdim))
         for t in range(ns):
-            hs[t] = sigmoid(self.params.H.dot(hs[t-1]) + self.sparams.L[xs[t]] + self.params.b1)
-        h_final = hs[ns-1]
-        z = self.params.U.dot(h_final) + self.params.b2
+            hs_f[t] = sigmoid(self.params.H.dot(hs[t-1]) + self.sparams.L[xs[t]] + self.params.b1)
+        h_f_final = hs_f[ns-1]
+        z = self.params.U.dot(h_f_final) + self.params.b2
         y_hat = []
         for i in range(n_aspect):
             current = z[sent_dim*i:sent_dim*(i+1)]
             y_hat.extend(softmax(current))
-
         return hs,y_hat
 
     def backprop(self,xs,ys,hs,y_hat):
@@ -153,6 +156,7 @@ class RNNLM(NNBase):
         J = self.compute_loss(X, Y)
         ntot = sum(map(len,Y))
         return J / float(ntot)
+
 
 
 
