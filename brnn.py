@@ -68,52 +68,80 @@ class RNNLM(NNBase):
 
     def _acc_grads(self, xs, ys):
         # Forward propagation
-        hs,y_hat = self.forward_propagation(xs)       
+        hs_f,hs_b,y_hat = self.forward_propagation(xs)       
         # backprop
         self.backprop(xs,ys,hs,y_hat)
                  
-    def forward_propagation_uni(self,xs):
+    def forward_propagation(self,xs):
         n_aspect = N_ASPECTS
         sent_dim = SENT_DIM
         ns = len(xs)
         hs_f = zeros((ns+1, self.hdim))
+        hs_b = zeros((ns+1, self.hdim))
         for t in range(ns):
-            hs_f[t] = sigmoid(self.params.H.dot(hs[t-1]) + self.sparams.L[xs[t]] + self.params.b1)
+            hs_f[t] = sigmoid(self.params.H_f.dot(hs_f[t-1]) + self.sparams.L[xs[t]] + self.params.b1_f)
         h_f_final = hs_f[ns-1]
-        z = self.params.U.dot(h_f_final) + self.params.b2
+        inverted_xs = list(reversed(xs))
+        for t in range(ns):
+            hs_b[t] = sigmoid(self.params.H_b.dot(hs_b[t-1]) + self.sparams.L[inverted_xs[t]] + self.params.b1_b)
+        h_b_final = hs_b[ns-1]
+
+        z = self.params.U.dot(hstack([h_f_final,h_b_final])) + self.params.b2
         y_hat = []
         for i in range(n_aspect):
             current = z[sent_dim*i:sent_dim*(i+1)]
             y_hat.extend(softmax(current))
-        return hs,y_hat
+        return hs_f,hs_b,y_hat
 
-    def backprop(self,xs,ys,hs,y_hat):
+    def backprop(self,xs,ys,hs_f,hs_b,y_hat):
+        inverted_xs = list(reversed(xs))
         ns = len(xs)
-        h_final = hs[ns-1]
+        ht_f = hs_f[ns-1].reshape(len(h_final),1)
+        ht_b = hs_b[ns-1].reshape(len(h_final),1)
         delta = (y_hat -ys)
-        self.grads.b2 += delta 
-        ht = h_final.reshape(len(h_final),1)
+        self.grads.b2 += delta
         delta = delta.reshape(len(ys),1)
         self.grads.U += delta.dot(ht.T)
          
         # H and L
         t = ns-1 # last t
-        current = self.params.U.T.dot(delta) * ht * (1-ht) # the common part
-        prev_ht = hs[t-1].reshape(len(hs[t-1]),1)
-        self.grads.H += current.dot(prev_ht.T)
-        self.grads.b1 += current.reshape((len(current),))
+        current_f = self.params.U.T.dot(delta)[:self.hdim]* ht_f * (1-ht_f)
+        current_b = self.params.U.T.dot(delta)[self.hdim:]* ht_b * (1-ht_b) # the common part
+        # update initial Hs
+        prev_ht_f = hs_f[t-1].reshape(len(hs_f[t-1]),1)
+        self.grads.H_f += current_f.dot(prev_ht_f.T)
+        self.grads.b1_f += current_f.reshape((len(current_f),))
+
+        prev_ht_b = hs_b[t-1].reshape(len(hs_b[t-1]),1)
+        self.grads.H_b += current_b.dot(prev_ht_b.T)
+        self.grads.b1_b += current_b.reshape((len(current_b),))
+
+        # update initial L
         xt = make_onehot(xs[t],self.vdim).reshape(self.vdim,1)
-        self.sgrads.L[xs[t]] = xt.dot(current.T)[xs[t]]
+        self.sgrads.L[xs[t]] = xt.dot(current_f.T)[xs[t]]
+        inv_xt = make_onehot(inverted_xs[t],self.vdim).reshape(self.vdim,1)
+        self.sgrads.L[inverted_xs[t]] = inv_xt.dot(current_b.T)[inverted_xs[t]]
+
+        # update the rest
         for i in range(1,self.bptt):
             if t<i: # so that h[-2] doesn't return anything
                 continue
-            ht_i = hs[t-i].reshape(len(hs[t-i]),1)
-            prev_ht_i = hs[t-i-1].reshape(len(hs[t-i-1]),1)
-            current = self.params.H.T.dot(current)*ht_i*(1-ht_i)
-            self.grads.H += current.dot(prev_ht_i.T)
-            self.grads.b1 += current.reshape((len(current),))
+            ht_f_i = hs_f[t-i].reshape(len(hs_f[t-i]),1)
+            prev_ht_f_i = hs_f[t-i-1].reshape(len(hs_f[t-i-1]),1)
+            current_f = self.params.H_f.T.dot(current_f)*ht_f_i*(1-ht_f_i)
+            self.grads.H_f += current_f.dot(prev_ht_i.T)
+            self.grads.b1_f += current_f.reshape((len(current_b),))
+
+            ht_b_i = hs_b[t-i].reshape(len(hs_b[t-i]),1)
+            prev_ht_b_i = hs_b[t-i-1].reshape(len(hs_b[t-i-1]),1)
+            current_b = self.params.H_b.T.dot(current_b)*ht_b_i*(1-ht_b_i)
+            self.grads.H_b += current_b.dot(prev_ht_b_i.T)
+            self.grads.b1_b += current_b.reshape((len(current_b),))
+
             prev_xt = make_onehot(xs[t-i],self.vdim).reshape(self.vdim,1)
-            self.sgrads.L[xs[t-i]] = prev_xt.dot(current.T)[xs[t-i]]
+            self.sgrads.L[xs[t-i]] = prev_xt.dot(current_f.T)[xs[t-i]]
+            prev_inv_xt = make_onehot(inverted_xs[t-i],self.vdim).reshape(self.vdim,1)
+            self.sgrads.L[inverted_xs[t-i]] = prev_inv_xt.dot(current_b.T)[inverted_xs[t-i]]
 
 
     def compute_seq_loss(self, xs, ys):
@@ -125,22 +153,7 @@ class RNNLM(NNBase):
         return J
 
     def predict(self, xs):
-        n_aspect = N_ASPECTS
-        sent_dim = SENT_DIM
-        #### YOUR CODE HERE ####
-        # hs[-1] = initial hidden state (zeros)
-        ns = len(xs)
-        hs = zeros((ns+1, self.hdim))
-
-        for t in range(ns):
-            hs[t] = sigmoid(self.params.H.dot(hs[t-1,:]) + self.sparams.L[xs[t]])
-            
-        h_final = hs[ns-1]
-        z = self.params.U.dot(h_final) 
-        y_hat = []
-        for i in range(n_aspect):
-            current = z[sent_dim*i:sent_dim*(i+1)]
-            y_hat.extend(softmax(current))
+        hs_f,hs_b,y_hat = self.forward_propagation(xs)
         return y_hat
 
     def compute_loss(self, X, Y):
