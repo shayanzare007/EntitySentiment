@@ -1,8 +1,8 @@
 from sys import argv
 
 #script, filename = argv
-filename = 'worddic.txt'
-filename1 = 'text_recu.txt'
+filename = 'worddic_new.txt'
+filename1 = 'data_form.txt'
 
 #f = open(filename1,'r')
 print "Opening the file..."
