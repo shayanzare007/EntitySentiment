@@ -23,7 +23,7 @@ def read_labels(filename):
       
     return training_set
 
-def read_data(filename):
+def read_data(filename,word_to_num):
     print "Opening the file..."
 
     X_train = []
@@ -119,18 +119,21 @@ def makeconf(conf_arr):
 
 vocab = pd.read_table("worddic.txt",header=None,sep="\s+",index_col=0)
 
-# Choose how many top words to keep
-vocabsize = 60000
-#vocabsize = 58868 #remove for implemenation
-num_to_word = dict(enumerate(vocab.index[:vocabsize]))
-word_to_num = du.invert_dict(num_to_word)
+n2w = dict(enumerate(vocab.index))
+w2n = du.invert_dict(n2w)
+
+vocabsize = len(w2n)
+
+num2word =dict(enumerate(w2n))
+word2num = du.invert_dict(num2word)
+print "Number of unique words:",len(num2word)
 
 ##############
 
 filename_train = 'x_train.txt'#'reviews_plain.txt'
 filename_dev = 'x_dev.txt'
-X_train = read_data(filename_train)
-X_dev = read_data(filename_dev)
+X_train = read_data(filename_train,word2num)
+X_dev = read_data(filename_dev,word2num)
 
 
 hdim = 100 # dimension of hidden layer = dimension of word vectors
@@ -141,7 +144,7 @@ model = BRNN(L0, U0=None, alpha=0.08, rseed=10, bptt=10)
 
 Y_train = read_labels('y_train.csv')#'train_recu.csv'
 Y_dev = read_labels('y_dev.csv')
-print len(Y_train)
+print "Number of training samples",len(Y_train)
 
 if len(X_dev)!= len(Y_dev):
   print "Sanity Check failed, len(X_dev)=",len(X_dev),"len(Y_dev)=",len(Y_dev)
@@ -151,7 +154,7 @@ if len(X_dev)!= len(Y_dev):
 ntrain = len(Y_train)
 X = X_train[:ntrain]
 Y = Y_train[:ntrain]
-nepoch = 5
+nepoch = 15
 X = array(X)
 Y = array(Y)
 
