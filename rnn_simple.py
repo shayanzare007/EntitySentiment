@@ -9,8 +9,8 @@ from nn.math import softmax, sigmoid, make_onehot
 from nn.math import MultinomialSampler, multinomial_sample
 
 N_ASPECTS = 5
-SENT_DIM = 11
-class RNNLM(NNBase):
+SENT_DIM = 5
+class RNN_SIMPLE(NNBase):
     """
     Implements an RNN of the form:
     h(t) = sigmoid(H * h(t-1) + L[x(t)] + b1)

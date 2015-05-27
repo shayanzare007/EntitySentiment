@@ -10,7 +10,7 @@ from nn.math import MultinomialSampler, multinomial_sample
 
 N_ASPECTS = 5
 SENT_DIM = 11
-class RNNLM(NNBase):
+class BRNN(NNBase):
     """
     Implements an RNN of the form:
     h(t) = sigmoid(H * h(t-1) + L[x(t)] + b1)
@@ -70,7 +70,7 @@ class RNNLM(NNBase):
         # Forward propagation
         hs_f,hs_b,y_hat = self.forward_propagation(xs)       
         # backprop
-        self.backprop(xs,ys,hs,y_hat)
+        self.backprop(xs,ys,hs_f,hs_b,y_hat)
                  
     def forward_propagation(self,xs):
         n_aspect = N_ASPECTS
@@ -96,17 +96,18 @@ class RNNLM(NNBase):
     def backprop(self,xs,ys,hs_f,hs_b,y_hat):
         inverted_xs = list(reversed(xs))
         ns = len(xs)
-        ht_f = hs_f[ns-1].reshape(len(h_final),1)
-        ht_b = hs_b[ns-1].reshape(len(h_final),1)
+        ht_f = hs_f[ns-1].reshape(len(hs_f[ns-1]),1)
+        ht_b = hs_b[ns-1].reshape(len(hs_b[ns-1]),1)
         delta = (y_hat -ys)
         self.grads.b2 += delta
         delta = delta.reshape(len(ys),1)
-        self.grads.U += delta.dot(ht.T)
+        self.grads.U += delta.dot(hstack([ht_f,ht_b]).reshape((1,2*len(ht_f))))
          
         # H and L
         t = ns-1 # last t
-        current_f = self.params.U.T.dot(delta)[:self.hdim]* ht_f * (1-ht_f)
-        current_b = self.params.U.T.dot(delta)[self.hdim:]* ht_b * (1-ht_b) # the common part
+        current_f = self.params.U.T.dot(delta)[:self.hdim] * ht_f * (1-ht_f)
+        current_b = self.params.U.T.dot(delta)[self.hdim:] * ht_b * (1-ht_b) # the common part
+
         # update initial Hs
         prev_ht_f = hs_f[t-1].reshape(len(hs_f[t-1]),1)
         self.grads.H_f += current_f.dot(prev_ht_f.T)
@@ -129,7 +130,7 @@ class RNNLM(NNBase):
             ht_f_i = hs_f[t-i].reshape(len(hs_f[t-i]),1)
             prev_ht_f_i = hs_f[t-i-1].reshape(len(hs_f[t-i-1]),1)
             current_f = self.params.H_f.T.dot(current_f)*ht_f_i*(1-ht_f_i)
-            self.grads.H_f += current_f.dot(prev_ht_i.T)
+            self.grads.H_f += current_f.dot(prev_ht_f_i.T)
             self.grads.b1_f += current_f.reshape((len(current_b),))
 
             ht_b_i = hs_b[t-i].reshape(len(hs_b[t-i]),1)
@@ -148,8 +149,6 @@ class RNNLM(NNBase):
         J = 0
         y_hat = self.predict(xs)
         J =- sum(array(ys).reshape(len(ys),1)*log(array(y_hat).reshape(len(y_hat),1)))
-
-        #### END YOUR CODE ####
         return J
 
     def predict(self, xs):
@@ -169,9 +168,3 @@ class RNNLM(NNBase):
         J = self.compute_loss(X, Y)
         ntot = sum(map(len,Y))
         return J / float(ntot)
-
-
-
-
-
-

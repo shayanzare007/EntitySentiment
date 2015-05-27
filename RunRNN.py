@@ -2,7 +2,8 @@ import sys, os
 from numpy import *
 from matplotlib.pyplot import *
 
-from rnn_simple import RNNLM
+from rnn_simple import RNN_SIMPLE
+from brnn import BRNN
 from data_utils import utils as du
 import pandas as pd
 
@@ -10,47 +11,42 @@ N_ASPECTS = 5
 SENT_DIM = 11
 
 def read_labels(filename):
-  training_set = []
-  with open(filename,'rU') as f:
-    for i,line in enumerate(f):
-      #print line
-      #line=line.rstrip().split('\r')
-      #print line
-      line=line.rstrip().split(',')
-      #print line
-      try:
-        current=[int(x) for x in line]
-        training_set.append(current)
-      except:
-        print "Error, number",i
+    training_set = []
+    with open(filename,'rU') as f:
+        for i,line in enumerate(f):
+            line=line.rstrip().split(',')
+            try:
+                current=[int(x) for x in line]
+                training_set.append(current)
+            except:
+                print "Error, number",i
       
-  return training_set
+    return training_set
 
 def read_data(filename):
-  print "Opening the file..."
+    print "Opening the file..."
 
-  X_train = []
+    X_train = []
 
-  f = open(filename,'r')
-  count = 0
+    f = open(filename,'r')
+    count = 0
+    for line in f.readlines():
+        sentence = []
+        line = line.strip()
+        if not line: continue
+        ret = line.split()
+        for word in ret:
+            word = word.strip()
+            try:
+                if word_to_num.get(word) is not None:
+                    sentence.append(word_to_num.get(word))
+            except:
+                count +=1
+        X_train.append(array(sentence))
 
-  for line in f.readlines():
-      sentence = []
-      line = line.strip()
-      if not line: continue
-      ret = line.split()
-      for word in ret:
-          word = word.strip()
-          try:
-              if word_to_num.get(word) is not None:
-                  sentence.append(word_to_num.get(word))
-          except:
-              count +=1
-      X_train.append(array(sentence))
-
-  print "File successfully read"
-  f.close()
-  return X_train
+    print "File successfully read"
+    f.close()
+    return X_train
 
 def make_sentiment_idx(y_hat):
     """
@@ -141,7 +137,7 @@ hdim = 100 # dimension of hidden layer = dimension of word vectors
 random.seed(10)
 L0 = zeros((vocabsize, hdim)) # replace with random init, 
                               # or do in RNNLM.__init__()
-model = RNNLM(L0, U0=None, alpha=0.08, rseed=10, bptt=2)
+model = BRNN(L0, U0=None, alpha=0.08, rseed=10, bptt=5)
 
 Y_train = read_labels('y_train.csv')#'train_recu.csv'
 Y_dev = read_labels('y_dev.csv')

@@ -2,8 +2,11 @@
 
 import re
 import csv
+import math
 
-ASPECT = ['player','sound','battery','price','software']
+#ASPECT = ['player','sound','battery','price','software'] MUSIC PLAYER
+ASPECT = ['picture','price','battery','portability','features']
+DIM_SENT = 5
 
 def parse(filename,output_filename):
     #open(output_filename, "w")
@@ -38,7 +41,6 @@ def extract_entity_sentiment(text):
             try:
                 entity = current.partition('[')[0]
                 score = current.split('[')[1][:-1]
-                names=entity.split(' ')
                 ent_sent[entity] = score
             except:
                 continue 
@@ -86,12 +88,16 @@ def build_sent(ent_sent_dict):
     n_asp = len(ASPECT)
     sent_vector=[]
     for i,aspect in enumerate(ASPECT):
-        current = zerolistmaker(11)
+        current = zerolistmaker(DIM_SENT)
+        print ent_sent_dict
         if aspect in ent_sent_dict:
-            current[convert_to_int(ent_sent_dict[aspect])+5] = 1
+            se = ent_sent_dict[aspect]
+            idx = comp_sent(convert_to_int(se))+int(math.floor(DIM_SENT/2))
+            current[idx] = 1
         else:
-            current[5] = 1
+            current[math.floor(DIM_SENT/2)] = 1
         sent_vector.extend(current)
+    print sent_vector
     return sent_vector
 
 def write_sent(sent_vect,output_feat):
@@ -101,16 +107,28 @@ def write_sent(sent_vect,output_feat):
             output.write(str(sent_vect[i])+',')
         output.write(str(sent_vect[n-1])+'\n')
 
+def comp_sent(sent):
+    if sent < -2:
+        return -2
+    elif sent == -2 or sent == -1 : 
+        return -1
+    elif sent == 1 or sent == 2:
+        return 1
+    elif sent > 2:
+        return 2
+    elif sent == 0:
+        return 0
+    print sent
+    return 0
+        
 def zerolistmaker(n):
     listofzeros = [0] * n
     return listofzeros
 
 def convert_to_int(sentiment):
-    print sentiment
     if sentiment[0] == '+':
         return int(sentiment[1])
     elif sentiment[0] == '-':
         return -int(sentiment[1])
     else:
-        print error
         return int(sentiment)
