@@ -6,7 +6,7 @@ from rnn_simple import RNN_SIMPLE
 from brnn import BRNN
 from data_utils import utils as du
 import pandas as pd
-
+from misc import random_weight_matrix
 N_ASPECTS = 5
 SENT_DIM = 5
 
@@ -135,7 +135,7 @@ X_dev = read_data(filename_dev)
 
 hdim = 100 # dimension of hidden layer = dimension of word vectors
 random.seed(10)
-L0 = zeros((vocabsize, hdim)) # replace with random init, 
+L0 = random_weight_matrix(vocabsize, hdim) # replace with random init, 
                               # or do in RNNLM.__init__()
 model = RNN_SIMPLE(L0, U0=None, alpha=0.08, rseed=10, bptt=5)
 
