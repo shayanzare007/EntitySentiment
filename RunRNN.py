@@ -1,6 +1,6 @@
 import sys, os
 from numpy import *
-from matplotlib.pyplot import *
+import matplotlib.pyplot as plt
 
 from rnn_simple import RNN_SIMPLE
 from brnn import BRNN
@@ -69,8 +69,8 @@ def build_confusion_matrix(X,Y,model):
         print y_hat
         print "\n \n"
         for t in range(len(y)):
-            true_label=y[t]
-            guessed_label=y_hat[t]
+            true_label=y[t]+floor(SENT_DIM/2)
+            guessed_label=y_hat[t]+floor(SENT_DIM/2)
         
             conf_arr[true_label,guessed_label]+=1
     print conf_arr
@@ -137,7 +137,7 @@ hdim = 100 # dimension of hidden layer = dimension of word vectors
 random.seed(10)
 L0 = random_weight_matrix(vocabsize, hdim) # replace with random init, 
                               # or do in RNNLM.__init__()
-model = RNN_SIMPLE(L0, U0=None, alpha=0.08, rseed=10, bptt=5)
+model = BRNN(L0, U0=None, alpha=0.08, rseed=10, bptt=10)
 
 Y_train = read_labels('y_train.csv')#'train_recu.csv'
 Y_dev = read_labels('y_dev.csv')
