@@ -8,6 +8,16 @@ import math
 ASPECT = ['picture','price','battery','portability','features']
 DIM_SENT = 5
 
+vocabulary ={'software':'features','optical zoom':'features','use':'features','photos':'picture','size':'portability','ease of use':'features','pictures':'picture',
+'zoom':'features','controls':'features','picture detail':'picture','buttons':'features','panorama mode':'features','TFT':'features',
+'TFT screen':'features','picture quality':'picture','Small':'portability','compact':'portability','light':'portability',
+'auto mode':'features','manual modes':'features','LCD':'features','macro mode':'features','dynamic range':'features',
+'housing':'portability','small':'portability','images':'picture','pics':'picture','sharp':'picture','color balance':'picture',
+'pictures of people':'picture','focus':'features','usability':'features','looks':'portability','weight':'portability','weighs':'portability',
+'image quality':'picture','tiny':'portability','resolution':'picture','smaller':'portability','flash':'features',
+'panorama setting':'features','fits':'portability','viewfinder':'features','screen':'features','functionality':'features',
+'lcd':'features','autofocus':'features','shots':'picture', 'batteries':'battery','memory':'features',
+'battery life':'battery'}
 def parse(filename,output_filename):
     #open(output_filename, "w")
     features = dict()
@@ -39,7 +49,9 @@ def extract_entity_sentiment(text):
         n_ent = len(entity_sent)
         for j,current in enumerate(entity_sent):
             try:
-                entity = current.partition('[')[0]
+                entity = current.partition('[')[0].lower()
+                if entity in vocabulary:
+                    entity = vocabulary[entity]
                 score = current.split('[')[1][:-1]
                 ent_sent[entity] = score
             except:
@@ -95,7 +107,7 @@ def build_sent(ent_sent_dict):
             idx = comp_sent(convert_to_int(se))+int(math.floor(DIM_SENT/2))
             current[idx] = 1
         else:
-            current[math.floor(DIM_SENT/2)] = 1
+            current[int(math.floor(DIM_SENT/2))] = 1
         sent_vector.extend(current)
     print sent_vector
     return sent_vector
