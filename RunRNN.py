@@ -8,7 +8,7 @@ from data_utils import utils as du
 import pandas as pd
 
 N_ASPECTS = 5
-SENT_DIM = 11
+SENT_DIM = 5
 
 def read_labels(filename):
     training_set = []
@@ -137,7 +137,7 @@ hdim = 100 # dimension of hidden layer = dimension of word vectors
 random.seed(10)
 L0 = zeros((vocabsize, hdim)) # replace with random init, 
                               # or do in RNNLM.__init__()
-model = BRNN(L0, U0=None, alpha=0.08, rseed=10, bptt=5)
+model = RNN_SIMPLE(L0, U0=None, alpha=0.08, rseed=10, bptt=5)
 
 Y_train = read_labels('y_train.csv')#'train_recu.csv'
 Y_dev = read_labels('y_dev.csv')
