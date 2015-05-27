@@ -120,8 +120,8 @@ def makeconf(conf_arr):
 vocab = pd.read_table("worddic.txt",header=None,sep="\s+",index_col=0)
 
 # Choose how many top words to keep
-#vocabsize = 2000
-vocabsize = 58868 #remove for implemenation
+vocabsize = 60000
+#vocabsize = 58868 #remove for implemenation
 num_to_word = dict(enumerate(vocab.index[:vocabsize]))
 word_to_num = du.invert_dict(num_to_word)
 
