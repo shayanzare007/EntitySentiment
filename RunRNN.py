@@ -61,7 +61,7 @@ def make_sentiment_idx(y_hat):
 
 
 def build_confusion_matrix(X,Y,model):
-    conf_arr = np.zeros((SENT_DIM,SENT_DIM))
+    conf_arr = zeros((SENT_DIM,SENT_DIM))
     for i,xs in enumerate(X):
         y = make_sentiment_idx(Y[i])
         y_hat = make_sentiment_idx(model.predict(xs))
