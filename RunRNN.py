@@ -4,6 +4,8 @@ import matplotlib.pyplot as plt
 
 from rnn_simple import RNN_SIMPLE
 from brnn import BRNN
+from brnn_weighted import BRNN_WEIGHTED
+from rnn_weighted import RNN_WEIGHTED
 from data_utils import utils as du
 import pandas as pd
 from misc import *
@@ -52,6 +54,9 @@ Y = Y_train[:ntrain]
 nepoch = 15
 X = array(X)
 Y = array(Y)
+print len(Y)
+X,Y = preprocess_duplicates(X,Y,SENT_DIM,N_ASPECTS)
+print len(Y)
 
 idxiter_random = random.permutation(len(Y))
 for i in range(2,nepoch):

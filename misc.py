@@ -33,15 +33,15 @@ def choose_best(Y,current_counters,cand,dim_sent,n_aspect):
     return best
 
 def preprocess_duplicates(X,Y,dim_sent,n_aspect):
-    processed_Y = copy.deepcopy(Y)
-    processed_X = copy.deepcopy(X)
+    processed_Y = list(copy.deepcopy(Y))
+    processed_X = list(copy.deepcopy(X))
     for i,example in enumerate(Y):
         sent_count = count_current(example,dim_sent,n_aspect)
-        n_dupl = sum(sent_count) - sent_count[int(ceil(dim_sent))]
+        n_dupl = sum(sent_count) - sent_count[int(floor(dim_sent/2))]
         for j in range(n_dupl):
             processed_X.append(X[i])
             processed_Y.append(Y[i])
-    return processed_X,processed_Y
+    return array(processed_X),array(processed_Y)
 
 
 def create_minibatches(Y,n_batches,size_batches=100,n_candidates = 5,replacement = False, dim_sent =3,n_aspect=5):
