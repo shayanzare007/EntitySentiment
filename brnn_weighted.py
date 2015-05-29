@@ -10,7 +10,7 @@ from nn.math import MultinomialSampler, multinomial_sample
 
 N_ASPECTS = 5
 SENT_DIM = 3
-class BRNN(NNBase):
+class BRNN_WEIGHTED(NNBase):
     """
     Implements an RNN of the form:
     h(t) = sigmoid(H * h(t-1) + L[x(t)] + b1)
@@ -30,7 +30,7 @@ class BRNN(NNBase):
         bptt : number of backprop timesteps
     """
 
-    def __init__(self, L0, Dy=N_ASPECTS*SENT_DIM, U0=None,
+    def __init__(self, L0,w, Dy=N_ASPECTS*SENT_DIM, U0=None,
                  alpha=0.005, rseed=10, bptt=5):
 
         self.hdim = L0.shape[1] # word vector dimensions
@@ -41,7 +41,8 @@ class BRNN(NNBase):
                           H_b = (self.hdim, self.hdim),
                           b1_f = (self.hdim,),
                           b1_b = (self.hdim,),
-                          b2 =(self.ydim,))
+                          b2 =(self.ydim,),
+                          weights =(self.ydim,))
         # note that only L gets sparse updates
         param_dims_sparse = dict(L = L0.shape)
         NNBase.__init__(self, param_dims, param_dims_sparse)
@@ -64,6 +65,7 @@ class BRNN(NNBase):
         self.params.b1_f = zeros((self.hdim,))
         self.params.b1_b = zeros((self.hdim,))
         self.params.b2 = zeros((self.ydim,))
+        self.params.weights = w
 
 
     def _acc_grads(self, xs, ys):
@@ -98,7 +100,7 @@ class BRNN(NNBase):
         ns = len(xs)
         ht_f = hs_f[ns-1].reshape(len(hs_f[ns-1]),1)
         ht_b = hs_b[ns-1].reshape(len(hs_b[ns-1]),1)
-        delta = (y_hat -ys)
+        delta = self.params.weights*(y_hat -ys)
         self.grads.b2 += delta
         delta = delta.reshape(len(ys),1)
         self.grads.U += delta.dot(hstack([ht_f,ht_b]).reshape((1,2*len(ht_f))))
@@ -148,7 +150,7 @@ class BRNN(NNBase):
     def compute_seq_loss(self, xs, ys):
         J = 0
         y_hat = self.predict(xs)
-        J =- sum(array(ys).reshape(len(ys),1)*log(array(y_hat).reshape(len(y_hat),1)))
+        J =- sum(self.params.weights*array(ys).reshape(len(ys),1)*log(array(y_hat).reshape(len(y_hat),1)))
         return J
 
     def predict(self, xs):
