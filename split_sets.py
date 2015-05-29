@@ -5,12 +5,12 @@ import parsing_cust_review as parser
 import numpy as np
 
 #script, filename = argv
-label_total_filename = 'train_recu.csv'
+label_total_filename = 'total_data.csv'
 label_train_filename = 'y_train.csv'
 label_dev_filename = 'y_dev.csv'
 label_test_filename = 'y_test.csv'
 
-data_filename = 'reviews_plain.txt'
+data_filename = 'total_sentences.csv'
 x_train_filename = 'x_train.txt'
 x_dev_filename = 'x_dev.txt'
 x_test_filename = 'x_test.txt'
