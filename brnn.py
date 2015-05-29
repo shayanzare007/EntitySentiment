@@ -9,7 +9,7 @@ from nn.math import softmax, sigmoid, make_onehot
 from nn.math import MultinomialSampler, multinomial_sample
 
 N_ASPECTS = 5
-SENT_DIM = 5
+SENT_DIM = 3
 class BRNN(NNBase):
     """
     Implements an RNN of the form:

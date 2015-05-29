@@ -8,7 +8,7 @@ from data_utils import utils as du
 import pandas as pd
 from misc import random_weight_matrix
 N_ASPECTS = 5
-SENT_DIM = 5
+SENT_DIM = 3
 
 def read_labels(filename):
     training_set = []

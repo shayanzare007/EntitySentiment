@@ -29,7 +29,7 @@ x_train = open(x_train_filename,'a')
 x_dev = open (x_dev_filename,'a')
 x_test = open(x_test_filename,'a')
 
-total = 3255
+total = 7149
 #total = 10
 
 #tot_arr = np.arange(total)
