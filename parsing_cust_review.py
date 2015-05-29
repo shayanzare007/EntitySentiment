@@ -6,7 +6,7 @@ import math
 
 #ASPECT = ['player','sound','battery','price','software'] MUSIC PLAYER
 ASPECT = ['picture','price','battery','portability','features']
-DIM_SENT = 5
+DIM_SENT = 3
 
 vocabulary ={'software':'features','optical zoom':'features','use':'features','photos':'picture','size':'portability','ease of use':'features','pictures':'picture',
 'zoom':'features','controls':'features','picture detail':'picture','buttons':'features','panorama mode':'features','TFT':'features',
@@ -120,17 +120,26 @@ def write_sent(sent_vect,output_feat):
         output.write(str(sent_vect[n-1])+'\n')
 
 def comp_sent(sent):
-    if sent < -2:
-        return -2
-    elif sent == -2 or sent == -1 : 
-        return -1
-    elif sent == 1 or sent == 2:
-        return 1
-    elif sent > 2:
-        return 2
-    elif sent == 0:
-        return 0
-    print sent
+    if DIM_SENT == 5:
+        if sent < -2:
+            return -2
+        elif sent == -2 or sent == -1 : 
+            return -1
+        elif sent == 1 or sent == 2:
+            return 1
+        elif sent > 2:
+            return 2
+        elif sent == 0:
+            return 0
+    elif DIM_SENT == 3:
+        if sent<0:
+            return -1
+        elif sent > 0:
+            return 1
+        else:
+            return 0
+    else:
+        return sent
     return 0
         
 def zerolistmaker(n):
