@@ -6,6 +6,9 @@ import copy
 import sys, os
 import matplotlib.pyplot as plt
 
+N_ASPECTS = 5
+SENT_DIM = 3
+
 def random_weight_matrix(m, n):
     epsilon = sqrt(6)/(sqrt(m+n))
     A0 = random.uniform(-epsilon,epsilon,size=(m,n))

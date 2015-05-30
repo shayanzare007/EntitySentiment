@@ -150,7 +150,7 @@ class BRNN_WEIGHTED(NNBase):
     def compute_seq_loss(self, xs, ys):
         J = 0
         y_hat = self.predict(xs)
-        J =- sum(self.params.weights*array(ys).reshape(len(ys),1)*log(array(y_hat).reshape(len(y_hat),1)))
+        J =- sum(self.params.weights.reshape(len(ys),1)*array(ys).reshape(len(ys),1)*log(array(y_hat).reshape(len(y_hat),1)))
         return J
 
     def predict(self, xs):
