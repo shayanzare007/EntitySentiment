@@ -4,6 +4,8 @@ import matplotlib.pyplot as plt
 
 from rnn_simple import RNN_SIMPLE
 from brnn import BRNN
+from brnn_weighted import BRNN_WEIGHTED
+from rnn_weighted import RNN_WEIGHTED
 from data_utils import utils as du
 import pandas as pd
 from misc import *
@@ -35,7 +37,13 @@ hdim = 100 # dimension of hidden layer = dimension of word vectors
 random.seed(10)
 L0 = random_weight_matrix(vocabsize, hdim) # replace with random init, 
                               # or do in RNNLM.__init__()
-model = BRNN(L0, U0=None, alpha=0.08, rseed=10, bptt=10)
+# create weight vectors                             
+w1 = [1.2,.6,1.2] # sum up to 3
+w = []
+for i in range(N_ASPECTS):
+    w.extend(w1)
+
+model = RNN_WEIGHTED(L0,w, U0=None, alpha=0.08, rseed=10, bptt=10)
 
 Y_train = read_labels('y_train.csv')#'train_recu.csv'
 Y_dev = read_labels('y_dev.csv')
@@ -52,6 +60,8 @@ Y = Y_train[:ntrain]
 nepoch = 10
 X = array(X)
 Y = array(Y)
+# ADD DUPLICATES
+X,Y = preprocess_duplicates(X,Y,SENT_DIM,N_ASPECTS)
 
 idxiter_random = random.permutation(len(Y))
 for i in range(2,nepoch):
