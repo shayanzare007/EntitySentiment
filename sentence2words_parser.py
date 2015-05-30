@@ -2,7 +2,7 @@ from sys import argv
 
 #script, filename = argv
 filename = 'worddic_new.txt'
-filename1 = 'data_form.txt'
+filename1 = 'total_sentences.txt'
 
 #f = open(filename1,'r')
 print "Opening the file..."

@@ -49,7 +49,7 @@ if len(X_dev)!= len(Y_dev):
 ntrain = len(Y_train)
 X = X_train[:ntrain]
 Y = Y_train[:ntrain]
-nepoch = 15
+nepoch = 10
 X = array(X)
 Y = array(Y)
 
