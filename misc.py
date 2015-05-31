@@ -126,6 +126,7 @@ def build_confusion_matrix(X,Y,model):
     for i,xs in enumerate(X):
         y = make_sentiment_idx(Y[i])
         y_hat = make_sentiment_idx(model.predict(xs))
+
         print y
         print y_hat
         print "\n \n"
@@ -135,6 +136,7 @@ def build_confusion_matrix(X,Y,model):
         
             conf_arr[true_label,guessed_label]+=1
     print conf_arr
+    calc_accuracy(conf_arr)
     makeconf(conf_arr)
 
 def makeconf(conf_arr):
@@ -175,5 +177,26 @@ def makeconf(conf_arr):
     # plt.savefig("pathname/image.png")
 
     plt.show()
+
+def calc_accuracy(conf_arr):
+    dim = shape(conf_arr)[0]
+    acc = []
+    rec = []
+    f1 = []
+    for i in range(dim):
+        acc_i = conf_arr[i,i]/sum(conf_arr[:,i])
+        rec_i = conf_arr[i,i]/sum(conf_arr[i,:])
+        acc.append(acc_i)
+        rec.append(rec_i)
+        f1.append(2*acc_i*rec_i/(acc_i+rec_i))
+    print f1
+    f1_macro = sum(f1)/dim
+    print "accuracies:",acc
+    print "recalls",rec
+    print "F1 Score (macro):",f1_macro
+
+
+
+
 
 
