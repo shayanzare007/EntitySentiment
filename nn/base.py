@@ -397,7 +397,7 @@ class NNBase(object):
             print "Begin SGD..."
             for idx, alpha in itertools.izip(idxiter, alphaiter):
                 #print 'length at current index'
-                #print len(X[idx])
+                #print idx
                 if len(X[idx]) == 0: # robustness
                     continue
                 if counter % printevery == 0:
@@ -410,7 +410,6 @@ class NNBase(object):
                     print "  [%d]: mean loss %g" % (counter, cost)
 
                 if hasattr(idx, "__iter__") and len(idx) > 1: # if iterable
-                    c
                     self.train_minibatch_sgd(X[idx], y[idx], alpha)
                 elif hasattr(idx, "__iter__") and len(idx) == 1: # single point
                     idx = idx[0]
