@@ -178,25 +178,33 @@ def makeconf(conf_arr):
 
     plt.show()
 
+
 def calc_accuracy(conf_arr):
     dim = shape(conf_arr)[0]
     acc = []
     rec = []
-    f1 = []
+    pi_z = 0
+    pi_n = 0
+    rec_n = 0
+    f1_mac = []
     for i in range(dim):
         acc_i = conf_arr[i,i]/sum(conf_arr[:,i])
         rec_i = conf_arr[i,i]/sum(conf_arr[i,:])
         acc.append(acc_i)
         rec.append(rec_i)
-        f1.append(2*acc_i*rec_i/(acc_i+rec_i))
-    print f1
-    f1_macro = sum(f1)/dim
-    print "accuracies:",acc
-    print "recalls",rec
-    print "F1 Score (macro):",f1_macro
-
-
-
-
+        f1_mac.append(2*acc_i*rec_i/(acc_i+rec_i))
+        pi_z += conf_arr[i,i]
+        pi_n += sum(conf_arr[:,i])
+        rec_n += sum(conf_arr[i,:])
+    acc_micro = pi_z/pi_n
+    recall_micro = pi_z/rec_n
+    f1_mic = 2*acc_micro*recall_micro/(acc_micro+recall_micro)
+    f1_macro = sum(f1_mac)/dim
+    print "Accucary single classes:",acc
+    print "Recalls single classes:",rec
+    print "F1 single classes:",f1_mac
+    print "Accuracy averaged:",acc_micro
+    print "Recall averaged",recall_micro
+    print "F1 Score (macro):",f1_macro,"F1 Score (micro):",f1_mic
 
 

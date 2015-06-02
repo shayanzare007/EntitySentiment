@@ -69,7 +69,7 @@ for i in range(2,nepoch):
     idxiter_random = concatenate((idxiter_random,permut),axis=0)
 
 idx_normal = range(len(Y))
-curve = model.train_sgd(X,Y,idxiter_random,None,400,400) 
+#curve = model.train_sgd(X,Y,idxiter_random,None,400,400) 
 
 ## Evaluate cross-entropy loss on the dev set,
 ## then convert to perplexity for your writeup
