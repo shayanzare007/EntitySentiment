@@ -2,6 +2,7 @@
 from __future__ import division
 from numpy import *
 from random import sample
+import pdb
 import copy
 import sys, os
 import matplotlib.pyplot as plt
@@ -47,19 +48,20 @@ def preprocess_duplicates(X,Y,dim_sent,n_aspect):
     return array(processed_X),array(processed_Y)
 
 
-def create_minibatches(Y,n_batches,size_batches=100,n_candidates = 5,replacement = False, dim_sent =3,n_aspect=5):
+def create_minibatches(Y,n_batches,size_batches=10,n_candidates = 5,replacement = False, dim_sent =3,n_aspect=5):
     if replacement==False and n_batches*size_batches>len(Y):
         print 'Error: cannot create minibatches larger than data'
         return None
 
     Y_tr = copy.deepcopy(Y)
+    
     batches = []
     for i in range(n_batches):
         current_batch = []
         current_counters = zeros(dim_sent)
         for j in range(size_batches):
             cand = sample(range(0,len(Y_tr)),n_candidates)
-            best_cand = choose_best(Y_tr,current_counters,cand,dim_sent)
+            best_cand = choose_best(Y_tr,current_counters,cand,dim_sent,n_aspect)
             current_batch.append(best_cand)
             current_counters = current_counters + count_current(Y_tr[best_cand],dim_sent,n_aspect)
             if replacement == False:
