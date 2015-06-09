@@ -66,7 +66,6 @@ def create_minibatches(Y,n_batches,size_batches=10,n_candidates = 5,replacement 
             current_counters = current_counters + count_current(Y_tr[best_cand],dim_sent,n_aspect)
             if replacement == False:
                 del Y_tr[best_cand]
-        #batches.append(current_batch)
         batches.extend(current_batch)
     return batches
 
@@ -129,13 +128,24 @@ def build_confusion_matrix(X,Y,model):
     for i,xs in enumerate(X):
         y = make_sentiment_idx(Y[i])
         y_hat = make_sentiment_idx(model.predict(xs))
+<<<<<<< HEAD
+=======
+
+        #print y
+        #print y_hat
+        #print "\n \n"
+>>>>>>> fc44c6ed5cd7354852b4e6888885fc5914ffb92f
         for t in range(len(y)):
             true_label=y[t]+floor(SENT_DIM/2)
             guessed_label=y_hat[t]+floor(SENT_DIM/2)
         
             conf_arr[true_label,guessed_label]+=1
     print conf_arr
+<<<<<<< HEAD
     return calc_accuracy(conf_arr)
+=======
+    calc_accuracy(conf_arr)
+>>>>>>> fc44c6ed5cd7354852b4e6888885fc5914ffb92f
     #makeconf(conf_arr)
 
 def makeconf(conf_arr):
