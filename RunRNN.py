@@ -57,30 +57,40 @@ nepoch = 8
 X = array(X)
 Y = array(Y)
 # ADD DUPLICATES
-#X,Y = preprocess_duplicates(X,Y,SENT_DIM,N_ASPECTS)
+X,Y = preprocess_duplicates(X,Y,SENT_DIM,N_ASPECTS)
 
-idxiter_random = random.permutation(len(Y))
+size = 10
+number = 500
+idxiter_random = create_minibatches(Y_train,number,size_batches=size,replacement = True)#random.permutation(len(Y))
 for i in range(2,nepoch):
-    permut = random.permutation(len(Y)) 
+    permut = create_minibatches(Y_train,number,size_batches=size,replacement = True)#random.permutation(len(Y)) 
     idxiter_random = concatenate((idxiter_random,permut),axis=0)
 
 idx_normal = range(len(Y))
+
 score1 =[]
-for i = range(3):
+
+for i in range(1):
 # create weight vectors  
-    wi = .35 + .5*i                           
-    w1 = [wi,1-2*wi,wi] # sum up to 3
+    #wi = 1.35   
+    #w2 =  3-(2*wi)                       
+    w1 = [1.1, .8, 1.1]#[wi,w2,wi] # sum up to 3
     w = []
     for i in range(N_ASPECTS):
         w.extend(w1)
-    model = RNN_WEIGHTED(L0,w, U0=None, alpha=0.08, rseed=10, bptt=10)
+
+    model = BRNN(L0, U0=None, alpha=0.05, rseed=10, bptt=20)
+    #print w
     curve = model.train_sgd(X,Y,idxiter_random,None,400,400) 
     score1.append(build_confusion_matrix(X_dev,Y_dev,model))
+print score1
 
+#model = RNN_SIMPLE(L0, U0=None, alpha=0.05, rseed=10, bptt=20)
+#curve = model.train_sgd(X,Y,idxiter_random,None,400,400) 
 ## Evaluate cross-entropy loss on the dev set,
 ## then convert to perplexity for your writeup
 dev_loss = model.compute_mean_loss(X_dev, Y_dev)
 print dev_loss
 test_loss = model.compute_mean_loss(X_test, Y_test)
 print test_loss
-build_confusion_matrix(X_dev,Y_dev,model)
+build_confusion_matrix(X_test,Y_test,model)

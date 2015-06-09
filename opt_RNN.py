@@ -29,61 +29,39 @@ print "Number of unique words:",len(num2word)
 
 filename_train = 'x_train.txt'#'reviews_plain.txt'
 filename_dev = 'x_dev.txt'
+filename_test = 'x_test.txt'
 X_train = read_data(filename_train,word2num)
 X_dev = read_data(filename_dev,word2num)
-
+X_test = read_data(filename_test,word2num)
 
 hdim = 100 # dimension of hidden layer = dimension of word vectors
 random.seed(10)
 L0 = random_weight_matrix(vocabsize, hdim) # replace with random init, 
                               # or do in RNNLM.__init__()
 # create weight vectors                             
-w1 = [1.2,.6,1.2] # sum up to 3
+w1 = [1.1,.8,1.1] # sum up to 3
 w = []
 for i in range(N_ASPECTS):
     w.extend(w1)
-
+print 'BRNN NORMAL create_minibatches'
 Y_train = read_labels('y_train.csv')#'train_recu.csv'
 Y_dev = read_labels('y_dev.csv')
+Y_test = read_labels('y_test.csv')
 print "Number of training samples",len(Y_train)
 
 if len(X_dev)!= len(Y_dev):
   print "Sanity Check failed, len(X_dev)=",len(X_dev),"len(Y_dev)=",len(Y_dev)
 
-epoch = 50
-scores_with_rep = zeros((5,5))
-scores_without_rep = zeros((5,5))
-for size_i in range(5):
-    size = 5*(size_i+1)
-    max_nb = len(Y_train)/size
-    for number_i in range(5):
-        number = 100*(number_i+1)
-        print "Parameters: size: %f, nb batches %f " % (size, number_i)
-        idx_mini_rep = create_minibatches(Y_train,number,size_batches=size,replacement = True)
-        idx__minibatch_rep = idx_mini_rep
-        for e in range(epoch):
-            idx__minibatch_rep.append(idx_mini_rep)
-        model = RNN_SIMPLE(L0, U0=None, alpha=0.05, rseed=10, bptt=20)
-        curve = model.train_sgd(array(X_train),array(Y_train),idx__minibatch_rep,None,100,100)
-        scores_with_rep[size_i,number_i,cand] = model.compute_mean_loss(X_dev, Y_dev)
+epoch = 8
+size = 10
+number = 500
+idx_mini_no_rep = create_minibatches(Y_train,number,size_batches=size,replacement = True)
+idx__minibatch_norep = idx_mini_no_rep
+for e in range(epoch):
+    idx__minibatch_norep.append(idx_mini_no_rep)
+model = BRNN_WEIGHTED(L0,w, U0=None, alpha=0.05, rseed=10, bptt=20)
+curve = model.train_sgd(array(X_train),array(Y_train),idx__minibatch_norep,None,400,400)
 
-        idx_mini_no_rep = create_minibatches(Y_train,number,size_batches=size,replacement = False)
-        if idx_mini_no_rep == None: continue
-        idx__minibatch_norep = idx_mini_no_rep
-        for e in range(epoch):
-            idx__minibatch_norep.append(idx_mini_no_rep)
-        model = RNN_SIMPLE(L0, U0=None, alpha=0.05, rseed=10, bptt=20)
-        curve = model.train_sgd(array(X_train),array(Y_train),idx__minibatch_norep,None,100,100)
-        scores_without_rep[size_i,number_i,cand] = model.compute_mean_loss(X_dev, Y_dev)
-
-print scores_with_rep
-print scores_without_rep
-
-print 'WITH REP, ARGMIN INDEX IS'
-print argmin(scores_with_rep)
-print'\n \n \n'
-print 'WITHOUT REP, ARGMIN INDEX IS'
-print argmin(scores_without_rep)
 
 
 ## Evaluate cross-entropy loss on the dev set,
@@ -91,4 +69,4 @@ print argmin(scores_without_rep)
 dev_loss = model.compute_mean_loss(X_dev, Y_dev)
 print dev_loss
 
-#build_confusion_matrix(X_dev,Y_dev,model)
+build_confusion_matrix(X_test,Y_test,model)
