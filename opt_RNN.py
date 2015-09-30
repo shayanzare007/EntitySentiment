@@ -14,7 +14,7 @@ SENT_DIM = 3
 
 # Load the vocabulary
 
-vocab = pd.read_table("worddic.txt",header=None,sep="\s+",index_col=0)
+vocab = pd.read_table("example_data/worddic.txt",header=None,sep="\s+",index_col=0)
 
 n2w = dict(enumerate(vocab.index))
 w2n = du.invert_dict(n2w)
@@ -27,9 +27,9 @@ print "Number of unique words:",len(num2word)
 
 ##############
 
-filename_train = 'x_train.txt'#'reviews_plain.txt'
-filename_dev = 'x_dev.txt'
-filename_test = 'x_test.txt'
+filename_train = 'example_data/x_train.txt'#'reviews_plain.txt'
+filename_dev = 'example_data/x_dev.txt'
+filename_test = 'example_data/x_test.txt'
 X_train = read_data(filename_train,word2num)
 X_dev = read_data(filename_dev,word2num)
 X_test = read_data(filename_test,word2num)
@@ -44,9 +44,9 @@ w = []
 for i in range(N_ASPECTS):
     w.extend(w1)
 print 'BRNN NORMAL create_minibatches'
-Y_train = read_labels('y_train.csv')#'train_recu.csv'
-Y_dev = read_labels('y_dev.csv')
-Y_test = read_labels('y_test.csv')
+Y_train = read_labels('example_data/y_train.csv')#'train_recu.csv'
+Y_dev = read_labels('example_data/y_dev.csv')
+Y_test = read_labels('example_data/y_test.csv')
 print "Number of training samples",len(Y_train)
 
 if len(X_dev)!= len(Y_dev):

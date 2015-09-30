@@ -67,7 +67,8 @@ def write_training(ent_sent_dict,sentence,output_filename):
                 f.write(word+',0,0\n')
 
 
-def format_recurrent(filename,output_filename_text='text_recu',output_feat = 'train_recu'):
+def format_recurrent(filename,output_filename_text='example_data/text_recu',
+                        output_feat = 'example_data/train_recu'):
     open(output_filename_text, "w")
     open(output_feat,"w")
     features = dict()

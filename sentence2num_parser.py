@@ -1,8 +1,8 @@
 from sys import argv
 
 #script, filename = argv
-filename = 'text_new.txt'
-filename1 = 'text_recu.txt'
+filename = 'example_data/text_new.txt'
+filename1 = 'example_data/text_recu.txt'
 
 #f = open(filename1,'r')
 print "Opening the file..."

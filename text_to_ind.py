@@ -23,4 +23,4 @@ def text_to_ind(input_file,output_file):
                     output.write(str(vocab[word])+',')
             output.write('\n')
 
-text_to_ind('text_recu.txt','testing_parser')
+text_to_ind('example_data/text_recu.txt','example_data/testing_parser')

@@ -14,7 +14,7 @@ SENT_DIM = 3
 
 # Load the vocabulary
 
-vocab = pd.read_table("worddic.txt",header=None,sep="\s+",index_col=0)
+vocab = pd.read_table("example_data/worddic.txt",header=None,sep="\s+",index_col=0)
 
 n2w = dict(enumerate(vocab.index))
 w2n = du.invert_dict(n2w)
@@ -40,9 +40,9 @@ random.seed(10)
 L0 = random_weight_matrix(vocabsize, hdim) # replace with random init, 
                               # or do in RNNLM.__init__()
 
-Y_train = read_labels('y_train.csv')#'train_recu.csv'
-Y_dev = read_labels('y_dev.csv')
-Y_test = read_labels('y_test.csv')
+Y_train = read_labels('example_data/y_train.csv')#'train_recu.csv'
+Y_dev = read_labels('example_data/y_dev.csv')
+Y_test = read_labels('example_data/y_test.csv')
 print "Number of training samples",len(Y_train)
 
 if len(X_dev)!= len(Y_dev):
